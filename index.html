@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agro-Product Kinetics Visualizer: Calculus in Fermentation</title>
+    
+    <!-- Tailwind CSS for high-fidelity UI design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter for high readability -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Font Awesome for bioscience and agro-tech icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- KaTeX for fast, beautiful mathematical formula rendering -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js" onload="renderMathInElement(document.body);"></script>
+    <!-- Chart.js for premium, responsive mathematical plots -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Custom scrollbar for premium feel */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <header class="bg-gradient-to-r from-emerald-800 to-teal-950 text-white shadow-md border-b border-emerald-700">
+        <div class="max-w-7xl mx-auto px-4 py-5 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4">
+                <div class="bg-emerald-500/20 p-3 rounded-xl border border-emerald-400/30">
+                    <i class="fa-solid fa-leaf text-3xl text-emerald-400"></i>
+                </div>
+                <div>
+                    <span class="text-xs font-semibold tracking-wider text-emerald-300 uppercase block">Agro-Product Technology (SFP)</span>
+                    <h1 class="text-2xl font-bold tracking-tight">Kinetics & Derivatives in Solid-State Fermentation</h1>
+                </div>
+            </div>
+            <div class="text-right md:text-right flex flex-col items-center md:items-end gap-1">
+                <div class="flex items-center gap-2 text-sm bg-emerald-900/50 px-3 py-1.5 rounded-full border border-emerald-700">
+                    <span class="w-2.5 h-2.5 bg-emerald-400 rounded-full animate-pulse"></span>
+                    <span class="text-emerald-200 font-medium">Interactive Bioscience Lab</span>
+                </div>
+                <span class="text-xs text-emerald-300/80 mt-1">Focus: Rhizopus oligosporus (Tempeh Production Kinetics)</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-grow max-w-7xl w-full mx-auto px-4 py-8 sm:px-6 lg:px-8">
+        
+        <!-- Tab Navigation for user flow -->
+        <div class="flex border-b border-slate-200 mb-6 bg-white p-1 rounded-xl shadow-sm">
+            <button onclick="switchTab('simulator')" id="btn-tab-simulator" class="flex-1 py-3 text-center font-semibold text-sm rounded-lg transition-all duration-200 bg-emerald-50 text-emerald-700 border border-emerald-100 shadow-sm">
+                <i class="fa-solid fa-chart-line mr-2"></i> Interactive Derivative Simulator
+            </button>
+            <button onclick="switchTab('theory')" id="btn-tab-theory" class="flex-1 py-3 text-center font-semibold text-sm rounded-lg text-slate-500 hover:text-slate-800 transition-all duration-200">
+                <i class="fa-solid fa-calculator mr-2"></i> Math & Derivation Breakdown
+            </button>
+            <button onclick="switchTab('case-study')" id="btn-tab-case-study" class="flex-1 py-3 text-center font-semibold text-sm rounded-lg text-slate-500 hover:text-slate-800 transition-all duration-200">
+                <i class="fa-solid fa-book-open mr-2"></i> Malaysian Agro Case Study
+            </button>
+        </div>
+
+        <!-- ================= SIMULATOR TAB CONTENT ================= -->
+        <div id="tab-simulator" class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Left Panel: Interactive controls & Scenario Intro (4 cols) -->
+            <div class="lg:col-span-4 space-y-6">
+                
+                <!-- Bioscience Context Overview -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80">
+                    <h2 class="text-lg font-bold text-slate-900 mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-seedling text-emerald-600"></i> The Scenario
+                    </h2>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                        In Malaysia's traditional food processing sector, optimized tempeh fermentation relies on tracking the growth of the mold <strong>Rhizopus oligosporus</strong>. 
+                    </p>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        To scale this up to commercial standards, agro-process engineers use the <strong>Logistic Growth Model</strong> to track fungal biomass \(f(x)\) (in g/L) over incubation time \(x\) (hours). The derivative \(f'(x)\) represents the <strong>instantaneous growth velocity</strong>—crucial for managing exothermic biological heat in tropical facilities.
+                    </p>
+                </div>
+
+                <!-- Simulation Sliders / Parameters -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80 space-y-5">
+                    <h2 class="text-lg font-bold text-slate-900 flex items-center gap-2">
+                        <i class="fa-solid fa-sliders text-emerald-600"></i> Kinetic Parameters
+                    </h2>
+                    <p class="text-xs text-slate-500">Modify the biological properties of the fermentation setup to watch the derivative curve adapt instantly.</p>
+
+                    <!-- Parameter K -->
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <label class="font-medium text-slate-700">Carrying Capacity (\(K\))</label>
+                            <span class="text-emerald-700 font-bold" id="val-k">12.0 g/L</span>
+                        </div>
+                        <input type="range" id="slide-k" min="5" max="25" step="0.5" value="12.0" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" oninput="updateSimulation()">
+                        <span class="text-[11px] text-slate-400 block mt-1">Maximum mycelial density supported by the soybean substrate.</span>
+                    </div>
+
+                    <!-- Parameter r -->
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <label class="font-medium text-slate-700">Specific Growth Rate (\(r\))</label>
+                            <span class="text-emerald-700 font-bold" id="val-r">0.25 h⁻¹</span>
+                        </div>
+                        <input type="range" id="slide-r" min="0.1" max="0.5" step="0.01" value="0.25" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" oninput="updateSimulation()">
+                        <span class="text-[11px] text-slate-400 block mt-1">Growth rate constant determined by strain viability & temperature.</span>
+                    </div>
+
+                    <!-- Parameter N0 -->
+                    <div>
+                        <div class="flex justify-between text-sm mb-1">
+                            <label class="font-medium text-slate-700">Initial Inoculum Size (\(N_0\))</label>
+                            <span class="text-emerald-700 font-bold" id="val-n0">0.50 g/L</span>
+                        </div>
+                        <input type="range" id="slide-n0" min="0.1" max="2.0" step="0.05" value="0.50" class="w-full h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" oninput="updateSimulation()">
+                        <span class="text-[11px] text-slate-400 block mt-1">Initial concentration of fungal spores inoculated into the soy substrate.</span>
+                    </div>
+
+                    <div class="pt-4 border-t border-slate-100 flex gap-2">
+                        <button onclick="resetParameters()" class="flex-1 py-2 text-center text-xs border border-slate-300 rounded-lg hover:bg-slate-50 transition font-semibold text-slate-600">
+                            <i class="fa-solid fa-rotate-left mr-1"></i> Reset Kinetics
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Math Equations Card (Dynamic) -->
+                <div class="bg-slate-900 text-slate-100 rounded-2xl p-6 shadow-sm border border-slate-800">
+                    <h2 class="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                        <i class="fa-solid fa-calculator text-emerald-400"></i> Active Mathematical Model
+                    </h2>
+                    <div class="space-y-4 text-sm">
+                        <div>
+                            <span class="text-slate-400 text-xs block font-mono">Fungal Biomass Equation f(x):</span>
+                            <div class="py-2 px-3 bg-slate-800/80 rounded-lg border border-slate-700 my-1 overflow-x-auto text-center font-serif text-emerald-300" id="eqn-fx-display">
+                                f(x) = \frac{K}{1 + A e^{-rx}}
+                            </div>
+                        </div>
+                        <div>
+                            <span class="text-slate-400 text-xs block font-mono">Derivative f'(x) (Instantaneous Growth Rate):</span>
+                            <div class="py-2 px-3 bg-slate-800/80 rounded-lg border border-slate-700 my-1 overflow-x-auto text-center font-serif text-emerald-300" id="eqn-dfx-display">
+                                f'(x) = r \cdot f(x) \left(1 - \frac{f(x)}{K}\right)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Center Panel: Live Chart visualization (5 cols) -->
+            <div class="lg:col-span-5 space-y-6">
+                
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-4">
+                        <div>
+                            <h2 class="text-lg font-bold text-slate-900">Fermentation Growth and Rate Curves</h2>
+                            <p class="text-xs text-slate-500">Click anywhere inside the graph area or drag the timeline to check rates.</p>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-emerald-100 text-emerald-800 text-[11px] font-semibold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span> Biomass (g/L)
+                            </span>
+                            <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-amber-100 text-amber-800 text-[11px] font-semibold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span> Rate f'(x)
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- Chart Container -->
+                    <div class="relative h-[320px] w-full bg-slate-50/50 rounded-xl p-2 border border-slate-100">
+                        <canvas id="fermentationChart"></canvas>
+                    </div>
+
+                    <!-- Live Timeline Scroller -->
+                    <div class="mt-6 space-y-3">
+                        <div class="flex justify-between items-center bg-slate-100 px-4 py-2 rounded-xl">
+                            <span class="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                                <i class="fa-regular fa-clock text-slate-500"></i> Set Process Time:
+                            </span>
+                            <span class="text-lg font-extrabold text-emerald-800" id="val-current-hour">12.0 hours</span>
+                        </div>
+                        <div class="flex items-center gap-4">
+                            <button onclick="toggleTimelapse()" id="btn-timelapse" class="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition font-semibold text-xs shadow-md shadow-emerald-600/10 flex items-center gap-2 shrink-0">
+                                <i class="fa-solid fa-play" id="icon-timelapse"></i> <span id="text-timelapse">Run Time-lapse</span>
+                            </button>
+                            <input type="range" id="slide-time" min="0" max="36" step="0.25" value="12.0" class="w-full h-3 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-emerald-600" oninput="updateTimeSlider(this.value)">
+                        </div>
+                        <p class="text-[11px] text-slate-400 text-center italic">Tip: Tap or click points on the lines above to anchor the derivative calculation directly.</p>
+                    </div>
+                </div>
+
+                <!-- Live Analytical Metrics & Tangent Calculator -->
+                <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80">
+                    <h3 class="text-sm font-bold uppercase tracking-wider text-slate-400 mb-3">Instantaneous Tangent Formula at Selected Point</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="bg-amber-50/60 border border-amber-200/50 rounded-xl p-4 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-semibold text-amber-800 block uppercase">Fungal Biomass \(f(x_s)\)</span>
+                                <span class="text-2xl font-black text-amber-950" id="panel-biomass">3.85 g/L</span>
+                            </div>
+                            <div class="bg-amber-100 p-2.5 rounded-lg text-amber-700">
+                                <i class="fa-solid fa-weight-scale text-lg"></i>
+                            </div>
+                        </div>
+                        <div class="bg-emerald-50/60 border border-emerald-200/50 rounded-xl p-4 flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-semibold text-emerald-800 block uppercase">Growth Rate \(f'(x_s)\)</span>
+                                <span class="text-2xl font-black text-emerald-950" id="panel-rate">0.75 g/L/h</span>
+                            </div>
+                            <div class="bg-emerald-100 p-2.5 rounded-lg text-emerald-700">
+                                <i class="fa-solid fa-gauge-high text-lg"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-4 bg-slate-50 rounded-xl p-3 border border-slate-100">
+                        <span class="text-xs font-semibold text-slate-500 block uppercase mb-1">Tangent Line Equation:</span>
+                        <div class="font-serif text-sm text-slate-700 text-center py-2" id="eqn-tangent-display">
+                            y - 3.85 = 0.75(x - 12.0)
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Panel: Live calculus analyzer & Layman Advisory (3 cols) -->
+            <div class="lg:col-span-3 space-y-6">
+                
+                <!-- Live Layman Advisor Panel -->
+                <div class="bg-gradient-to-br from-emerald-900 to-teal-950 text-white rounded-2xl p-6 shadow-md border border-emerald-700">
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="bg-emerald-400/20 px-2 py-1 rounded text-xs font-bold text-emerald-300 border border-emerald-400/20">
+                            Hour <span id="advisory-hour-badge">12.0</span>
+                        </div>
+                        <h2 class="text-md font-bold text-emerald-200">Process State Advisory</h2>
+                    </div>
+
+                    <!-- Phase Status indicator -->
+                    <div class="bg-white/10 rounded-xl p-3 border border-white/10 mb-5">
+                        <span class="text-[11px] text-emerald-300 block font-mono uppercase">Current Fermentation Phase</span>
+                        <span class="text-base font-extrabold text-white" id="advisory-phase">Lag Phase</span>
+                    </div>
+
+                    <!-- Layman explanation -->
+                    <div class="space-y-4">
+                        <div>
+                            <span class="text-xs font-semibold text-emerald-300 block uppercase mb-1"><i class="fa-solid fa-graduation-cap"></i> Layman Explanation</span>
+                            <p class="text-xs text-slate-200 leading-relaxed font-light" id="advisory-layman">
+                                Setting up...
+                            </p>
+                        </div>
+                        
+                        <!-- Industrial Action Guideline -->
+                        <div class="pt-4 border-t border-white/10">
+                            <span class="text-xs font-semibold text-emerald-300 block uppercase mb-1"><i class="fa-solid fa-gears"></i> Agro-Industry Action Guide</span>
+                            <p class="text-xs text-slate-200 leading-relaxed font-light" id="advisory-action">
+                                Initiating...
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- MARDI / UPM Reference Directory Citation card -->
+                <div class="bg-white rounded-2xl p-5 shadow-sm border border-slate-200/80 space-y-3">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-400">Biological References</h3>
+                    <div class="space-y-2.5 text-xs text-slate-600">
+                        <div class="flex gap-2 items-start">
+                            <i class="fa-solid fa-bookmark text-emerald-600 mt-0.5"></i>
+                            <div>
+                                <p class="font-semibold text-slate-800">MARDI Food Tech Directory</p>
+                                <a href="https://www.mardi.gov.my" target="_blank" class="text-emerald-600 hover:underline">mardi.gov.my</a>
+                                <p class="text-slate-400 mt-0.5">Fermentation standards & solid-state incubator templates.</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 items-start pt-2 border-t border-slate-100">
+                            <i class="fa-solid fa-bookmark text-emerald-600 mt-0.5"></i>
+                            <div>
+                                <p class="font-semibold text-slate-800">Malaysian Journal of Microbiology</p>
+                                <a href="https://mjm.usm.my" target="_blank" class="text-emerald-600 hover:underline">mjm.usm.my</a>
+                                <p class="text-slate-400 mt-0.5">Growth kinetics parameterizations for regional soy substrates.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- ================= THEORY TAB CONTENT ================= -->
+        <div id="tab-theory" class="hidden bg-white rounded-2xl p-8 shadow-sm border border-slate-200/80 space-y-6">
+            <h2 class="text-2xl font-bold text-slate-950 flex items-center gap-2 border-b border-slate-100 pb-4">
+                <i class="fa-solid fa-calculator text-emerald-600"></i> Mathematical Proof & Derivative Derivation
+            </h2>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="space-y-4">
+                    <h3 class="text-lg font-bold text-slate-800">1. The Logistic Growth Function \(f(x)\)</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        In bioprocess models, simple exponential growth is unrealistic because nutrients, surface area, and moisture are finite. The logistic function models early slow growth, a middle exponential phase, and a terminal plateau (saturation).
+                    </p>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        We represent the fungal density as:
+                    </p>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center font-serif text-lg text-slate-800 my-2">
+                        \(f(x) = \frac{K}{1 + A e^{-rx}}\)
+                    </div>
+                    <p class="text-slate-600 text-xs">
+                        Where:<br>
+                        • \(K\) is the carrying capacity (maximal biomass supported by the soy matrix).<br>
+                        • \(r\) is the specific fungal expansion rate coefficient.<br>
+                        • \(A = \frac{K - N_0}{N_0}\), with \(N_0\) representing the initial concentration of spores at hour zero.
+                    </p>
+                </div>
+
+                <div class="space-y-4">
+                    <h3 class="text-lg font-bold text-slate-800">2. Deriving the Rate of Change \(f'(x)\)</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        To find how fast the biomass changes at any instant, we calculate the first derivative with respect to time (\(x\)). Utilizing the Chain Rule on \(f(x) = K \cdot (1 + A e^{-rx})^{-1}\):
+                    </p>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 font-serif text-sm text-slate-800 my-2 space-y-3">
+                        <div>
+                            \[ f'(x) = -K \cdot (1 + A e^{-rx})^{-2} \cdot \frac{d}{dx}[1 + A e^{-rx}] \]
+                        </div>
+                        <div>
+                            \[ f'(x) = \frac{-K}{(1 + A e^{-rx})^2} \cdot (-r A e^{-rx}) \]
+                        </div>
+                        <div>
+                            \[ f'(x) = \frac{K \cdot r \cdot A e^{-rx}}{(1 + A e^{-rx})^2} \]
+                        </div>
+                    </div>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        Expressing this back in terms of the original function \(f(x)\) yields a biologically elegant formula:
+                    </p>
+                    <div class="bg-emerald-50 border border-emerald-100 p-4 rounded-xl text-center font-serif text-lg text-emerald-800 font-bold">
+                        \[ f'(x) = r \cdot f(x) \left( 1 - \frac{f(x)}{K} \right) \]
+                    </div>
+                    <p class="text-slate-600 text-sm leading-relaxed">
+                        This shows that the rate of change is proportional to both the current biomass amount and the fraction of resources remaining (\(1 - f(x)/K\)).
+                    </p>
+                </div>
+            </div>
+
+            <div class="bg-emerald-50 rounded-2xl p-6 border border-emerald-100/80 mt-6">
+                <h4 class="font-bold text-emerald-900 mb-2 flex items-center gap-2 text-md">
+                    <i class="fa-solid fa-lightbulb"></i> Key Calculus Highlight for Agro-Product Tech Students
+                </h4>
+                <p class="text-emerald-850 text-sm leading-relaxed">
+                    By taking the second derivative \(f''(x)\) and setting it to zero (\(f''(x) = 0\)), we find the <strong>inflection point</strong>. At this point, the rate of change \(f'(x)\) achieves its absolute maximum value. Biologically, this is the transition from the exponential acceleration phase to the deceleration phase. For an SFP engineer, identifying this time parameter allows you to predict precisely when the heat generation is greatest, allowing you to cycle ventilation systems perfectly!
+                </p>
+            </div>
+        </div>
+
+        <!-- ================= CASE STUDY TAB CONTENT ================= -->
+        <div id="tab-case-study" class="hidden bg-white rounded-2xl p-8 shadow-sm border border-slate-200/80 space-y-6">
+            <h2 class="text-2xl font-bold text-slate-950 flex items-center gap-2 border-b border-slate-100 pb-4">
+                <i class="fa-solid fa-book-open text-emerald-600"></i> Local Malaysian Agro-Product Case Study
+            </h2>
+
+            <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-900 mb-2">Rhizopus oligosporus Solid-State Fermentation (Tempeh Production)</h3>
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-slate-200 text-slate-800 text-xs font-semibold mb-4">
+                    <i class="fa-solid fa-location-dot"></i> MARDI Food Processing Incubators, Selangor, Malaysia
+                </span>
+                
+                <div class="prose max-w-none text-slate-600 text-sm space-y-4">
+                    <p class="leading-relaxed">
+                        Tempeh is a highly popular, nutritious fermented staple food across Malaysia. Traditional production relies heavily on sensory assessments ("feel of heat", "color of mold") to decide processing parameters. However, modernized industrial pathways formulated by <strong>MARDI (Malaysian Agricultural Research and Development Institute)</strong> utilize advanced automated growth kinetics to prevent batch spoiling and extend shelf life.
+                    </p>
+                    <p class="leading-relaxed">
+                        During the inoculation phase at typical local facility settings (ambient temperatures between 30°C to 34°C with controlled humilities of 80%), fungal growth dynamics match kinetic models perfectly:
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 my-6">
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <h4 class="font-bold text-slate-900 text-xs uppercase text-emerald-700 mb-1">Critical Process Target</h4>
+                            <p class="text-lg font-extrabold text-slate-850">Inflection Point (Max Rate)</p>
+                            <p class="text-xs text-slate-400 mt-1">Occurs when the mold coverage has reached exactly half the carrying capacity \(K\).</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <h4 class="font-bold text-slate-900 text-xs uppercase text-emerald-700 mb-1">Metabolic Consequence</h4>
+                            <p class="text-lg font-extrabold text-slate-850">Peak Heat Flux</p>
+                            <p class="text-xs text-slate-400 mt-1">Fungal respiration peaks, releasing thermal energy to the soy cake, driving core temperatures up.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                            <h4 class="font-bold text-slate-900 text-xs uppercase text-emerald-700 mb-1">Industrial Intervention</h4>
+                            <p class="text-lg font-extrabold text-slate-850">Forced Aeration Activation</p>
+                            <p class="text-xs text-slate-400 mt-1">Cool, humid air must be pumped through trays to hold temperatures below 38°C to avert spore thermal shock.</p>
+                        </div>
+                    </div>
+
+                    <h4 class="font-bold text-slate-900 text-base">Relevance to Your Agro-Product Degree (SFP)</h4>
+                    <p class="leading-relaxed">
+                        Understanding Calculus in agricultural modeling elevates your skill profile from manual labor oversight to **bioprocess systems designer**. By analyzing equations rather than basic empirical rules, you learn to:
+                    </p>
+                    <ul class="list-disc pl-5 space-y-2 mt-2">
+                        <li>Calculate the peak rates of starch-to-sugar hydrolyzation in MD2 Pineapple ripening schedules.</li>
+                        <li>Model biological decay curves of tropical fruits at post-harvest storage nodes under different gas environments.</li>
+                        <li>Program automated control scripts in modern smart agriculture facilities that activate safety responses triggered strictly by first-derivative threshold alarms.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <footer class="bg-slate-900 text-slate-400 text-xs py-8 mt-12 border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-3">
+            <p>Developed for Malaysian Agro-Product Technology (SFP) undergraduate curriculums.</p>
+            <p class="text-slate-500">Academic Scenario Simulation &copy; 2026. Formulas and constants generated based on standard MARDI & UPM biochemical parameters.</p>
+        </div>
+    </footer>
+
+    <script>
+        // Global simulation variables
+        let fermentationChart = null;
+        let selectedTime = 12.0;
+        let isTimelapseRunning = false;
+        let timelapseInterval = null;
+
+        // Kinetic Parameters defaults
+        let K = 12.0;
+        let r = 0.25;
+        let N0 = 0.50;
+
+        // On window load, configure Chart.js and update display formulas
+        window.onload = function() {
+            // Check for KaTeX rendering
+            if (window.renderMathInElement) {
+                renderMathInElement(document.body);
+            }
+            // Initialize graph structure
+            initializeChart();
+            // Perform first calculation cycle
+            updateSimulation();
+        };
+
+        function switchTab(tabId) {
+            const tabs = ['simulator', 'theory', 'case-study'];
+            tabs.forEach(t => {
+                const el = document.getElementById(`tab-${t}`);
+                const btn = document.getElementById(`btn-tab-${t}`);
+                if (t === tabId) {
+                    el.classList.remove('hidden');
+                    btn.classList.add('bg-emerald-50', 'text-emerald-700', 'border', 'border-emerald-100', 'shadow-sm');
+                    btn.classList.remove('text-slate-500', 'hover:text-slate-800');
+                } else {
+                    el.classList.add('hidden');
+                    btn.classList.remove('bg-emerald-50', 'text-emerald-700', 'border', 'border-emerald-100', 'shadow-sm');
+                    btn.classList.add('text-slate-500', 'hover:text-slate-800');
+                }
+            });
+
+            // If switching back to simulator, make sure chart handles layout correctly
+            if (tabId === 'simulator' && fermentationChart) {
+                setTimeout(() => fermentationChart.resize(), 100);
+            }
+        }
+
+        // Main function: f(x)
+        function getBiomass(x, currentK = K, currentR = r, currentN0 = N0) {
+            const A = (currentK - currentN0) / currentN0;
+            return currentK / (1 + A * Math.exp(-currentR * x));
+        }
+
+        // First Derivative: f'(x)
+        function getGrowthRate(x, currentK = K, currentR = r, currentN0 = N0) {
+            const currentBiomass = getBiomass(x, currentK, currentR, currentN0);
+            return currentR * currentBiomass * (1 - (currentBiomass / currentK));
+        }
+
+        function initializeChart() {
+            const ctx = document.getElementById('fermentationChart').getContext('2d');
+            
+            // Build placeholders
+            fermentationChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array.from({length: 145}, (_, i) => i * 0.25), // Every 15 min from 0 to 36h
+                    datasets: [
+                        {
+                            label: 'Fungal Biomass f(x)',
+                            data: [],
+                            borderColor: '#10b981', // emerald-500
+                            backgroundColor: 'rgba(16, 185, 129, 0.05)',
+                            fill: true,
+                            borderWidth: 3,
+                            tension: 0.1,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: "Growth Rate f'(x)",
+                            data: [],
+                            borderColor: '#f59e0b', // amber-500
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            tension: 0.1,
+                            yAxisID: 'y1'
+                        },
+                        {
+                            label: 'Tangent at Selected Hour',
+                            data: [],
+                            borderColor: '#ef4444', // red-500
+                            backgroundColor: 'transparent',
+                            borderWidth: 2,
+                            pointRadius: 0,
+                            fill: false,
+                            tension: 0,
+                            yAxisID: 'y'
+                        },
+                        {
+                            label: 'Selected Node Marker',
+                            data: [],
+                            borderColor: '#ef4444',
+                            backgroundColor: '#ef4444',
+                            pointRadius: 6,
+                            pointHoverRadius: 8,
+                            showLine: false,
+                            yAxisID: 'y'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    onClick: (evt, elements) => {
+                        if (elements.length > 0) {
+                            const index = elements[0].index;
+                            const clickedX = index * 0.25;
+                            document.getElementById('slide-time').value = clickedX;
+                            updateTimeSlider(clickedX);
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Fermentation Time (Hours)',
+                                font: { weight: 'bold' }
+                            },
+                            ticks: {
+                                callback: function(value) { return value / 4; } // Show labels nicely
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Fungal Biomass (g/L)',
+                                font: { weight: 'bold' }
+                            },
+                            min: 0,
+                            max: 27
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: "Growth Velocity f'(x) (g/L/hour)",
+                                font: { weight: 'bold' }
+                            },
+                            min: 0,
+                            max: 4,
+                            grid: {
+                                drawOnChartArea: false // prevent grid overlap
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                title: (context) => `Hour ${context[0].label}`,
+                                label: (context) => {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y.toFixed(3);
+                                    }
+                                    return label;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false // We use our own custom HTML badges for custom elegance
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateSimulation() {
+            // Read UI Sliders
+            K = parseFloat(document.getElementById('slide-k').value);
+            r = parseFloat(document.getElementById('slide-r').value);
+            N0 = parseFloat(document.getElementById('slide-n0').value);
+
+            // Update parameters displays
+            document.getElementById('val-k').innerText = `${K.toFixed(1)} g/L`;
+            document.getElementById('val-r').innerText = `${r.toFixed(2)} h⁻¹`;
+            document.getElementById('val-n0').innerText = `${N0.toFixed(2)} g/L`;
+
+            // Adjust y-axis max dynamically to look great
+            fermentationChart.options.scales.y.max = Math.ceil(K + 2);
+            // Dynamic scale for the rate axis as well based on maximum growth rate possible at K/2
+            const maxRatePossible = r * (K / 2) * (1 - 0.5); 
+            fermentationChart.options.scales.y1.max = parseFloat((maxRatePossible * 1.5).toFixed(2));
+
+            // Generate plot datasets
+            const biomassData = [];
+            const rateData = [];
+            
+            for (let i = 0; i <= 144; i++) {
+                const hour = i * 0.25;
+                biomassData.push(getBiomass(hour));
+                rateData.push(getGrowthRate(hour));
+            }
+
+            fermentationChart.data.datasets[0].data = biomassData;
+            fermentationChart.data.datasets[1].data = rateData;
+
+            // Update formula card equations dynamically
+            const calcA = ((K - N0) / N0).toFixed(2);
+            document.getElementById('eqn-fx-display').innerHTML = `f(x) = \\frac{${K.toFixed(1)}}{1 + ${calcA} e^{-${r.toFixed(2)}x}}`;
+            document.getElementById('eqn-dfx-display').innerHTML = `f'(x) = ${r.toFixed(2)} \\cdot f(x) \\left(1 - \\frac{f(x)}{${K.toFixed(1)}}\\right)`;
+            
+            // Re-render KaTeX equations inside formula display elements
+            if (window.renderMathInElement) {
+                renderMathInElement(document.getElementById('eqn-fx-display'));
+                renderMathInElement(document.getElementById('eqn-dfx-display'));
+            }
+
+            // Sync timelines
+            const timeSliderVal = parseFloat(document.getElementById('slide-time').value);
+            updateTimeSlider(timeSliderVal);
+        }
+
+        function updateTimeSlider(val) {
+            selectedTime = parseFloat(val);
+            document.getElementById('val-current-hour').innerText = `${selectedTime.toFixed(2)} hours`;
+            document.getElementById('advisory-hour-badge').innerText = `${selectedTime.toFixed(2)}`;
+
+            // Calculate current values
+            const biomassVal = getBiomass(selectedTime);
+            const rateVal = getGrowthRate(selectedTime);
+
+            // Update analytical card displays
+            document.getElementById('panel-biomass').innerText = `${biomassVal.toFixed(3)} g/L`;
+            document.getElementById('panel-rate').innerText = `${rateVal.toFixed(3)} g/L/h`;
+
+            // Tangent equation formatting: y - y1 = m(x - x1)
+            document.getElementById('eqn-tangent-display').innerText = `y - ${biomassVal.toFixed(2)} = ${rateVal.toFixed(2)}(x - ${selectedTime.toFixed(2)})`;
+
+            // Calculate and draw dynamic tangent line on graph
+            const tangentDataset = [];
+            const labels = fermentationChart.data.labels;
+            
+            // Limit tangent visual scope so it stays visual and clear (within -6h to +6h boundary of target x)
+            const minBound = selectedTime - 6;
+            const maxBound = selectedTime + 6;
+
+            for (let i = 0; i < labels.length; i++) {
+                const xVal = labels[i];
+                if (xVal >= minBound && xVal <= maxBound) {
+                    const yVal = rateVal * (xVal - selectedTime) + biomassVal;
+                    // Don't draw negative biomass or curves far exceeding carrying capacity
+                    if (yVal >= 0 && yVal <= K + 4) {
+                        tangentDataset.push({x: xVal, y: yVal});
+                    } else {
+                        tangentDataset.push({x: xVal, y: null});
+                    }
+                } else {
+                    tangentDataset.push({x: xVal, y: null});
+                }
+            }
+
+            fermentationChart.data.datasets[2].data = tangentDataset;
+
+            // Highlight selected node marker
+            fermentationChart.data.datasets[3].data = Array(145).fill(null);
+            const index = Math.round(selectedTime / 0.25);
+            if (index >= 0 && index <= 144) {
+                fermentationChart.data.datasets[3].data[index] = biomassVal;
+            }
+
+            // Force update of visual components
+            fermentationChart.update('none'); // Update without full layout animation to keep it lightning fast
+
+            // Retrieve live educational advice
+            generateBioscienceAdvisory(selectedTime, biomassVal, rateVal);
+        }
+
+        function generateBioscienceAdvisory(hour, biomass, rate) {
+            const phaseEl = document.getElementById('advisory-phase');
+            const laymanEl = document.getElementById('advisory-layman');
+            const actionEl = document.getElementById('advisory-action');
+
+            // Find maximum possible rate inflection parameters
+            const inflectionPointHour = Math.log((K - N0) / N0) / r;
+
+            if (hour < 5) {
+                // Lag phase details
+                phaseEl.innerText = "Lag Phase (Adjustment)";
+                phaseEl.className = "text-base font-extrabold text-blue-300";
+                laymanEl.innerHTML = "At this initial period, the fungal spores are adjusting to their environment. Even though biomass growth is extremely small (\(f'(x) \\approx 0\\)), the mold is highly active internally—synthesizing enzymes to digest complex starch and proteins inside the soybeans.";
+                actionEl.innerText = "Agro-processing monitors should keep incubator humidity above 85% to help spore germination. No dynamic cooling is necessary yet as heat release is minimal.";
+            } 
+            else if (hour >= 5 && hour < (inflectionPointHour - 1.5)) {
+                // Acceleration phase
+                phaseEl.innerText = "Acceleration Phase (Budding)";
+                phaseEl.className = "text-base font-extrabold text-emerald-300";
+                laymanEl.innerHTML = "The fungal mycelium network is beginning to take root and expand. Fungal density is increasing exponentially. The slope is rising significantly, meaning the rate of growth (\(f'(x)\)) is accelerating upwards hour-by-hour.";
+                actionEl.innerText = "Verify that incubator ventilation doors are operating normally. Growth rates are increasing, leading to a steady elevation of ambient carbon dioxide.";
+            } 
+            else if (hour >= (inflectionPointHour - 1.5) && hour <= (inflectionPointHour + 1.5)) {
+                // Peak inflection range
+                phaseEl.innerText = "Exponential Phase (Peak Growth)";
+                phaseEl.className = "text-base font-extrabold text-amber-300 animate-pulse";
+                laymanEl.innerHTML = `This is the absolute peak of fermentation metabolism! Growth velocity \(f'(x)\) has hit its maximum value of <strong>${rate.toFixed(3)} g/L/h</strong>. Fungi are aggressively knitting the soy cake together. Dynamic heat and metabolic moisture release are at extreme peaks.`;
+                actionEl.innerText = "Critical Process Intervention required in Malaysian setups! Turn on automated circulation fans to keep core incubator temps from spiking over 38°C, which would sterilize the active batch.";
+            } 
+            else if (hour > (inflectionPointHour + 1.5) && hour < 26) {
+                // Deceleration Phase
+                phaseEl.innerText = "Deceleration Phase";
+                phaseEl.className = "text-base font-extrabold text-teal-300";
+                laymanEl.innerHTML = "While fungal biomass continues to increase, the growth rate (\(f'(x)\)) is declining. The soybeans are now almost fully blanketed with dense white hyphae. Space and residual simple sugars are shrinking, slowing biological momentum.";
+                actionEl.innerText = "Reduce forced aeration speeds. You want the fungal growth to plateau smoothly without over-drying the packaging material.";
+            } 
+            else {
+                // Stationary Phase
+                phaseEl.innerText = "Stationary Phase (Harvest-Ready)";
+                phaseEl.className = "text-base font-extrabold text-slate-300";
+                laymanEl.innerHTML = "Net growth rate is near-zero (\(f'(x) \\approx 0\\)). Fungal density is maximized at carrying capacity. The soybean matrix has bonded into a solid, premium tempeh cake. If left too long past this, the mold will enter decay states, releasing spores (black spots) and spoiling with ammonia smells.";
+                actionEl.innerText = "Harvest process immediately. Shift finished batches straight to cold storage chillers (below 4°C) to lock active enzymes, halting metabolic progress.";
+            }
+
+            // Re-run LaTeX parsing on advisory layman panel
+            if (window.renderMathInElement) {
+                renderMathInElement(laymanEl);
+            }
+        }
+
+        function toggleTimelapse() {
+            const btn = document.getElementById('btn-timelapse');
+            const icon = document.getElementById('icon-timelapse');
+            const text = document.getElementById('text-timelapse');
+            const slider = document.getElementById('slide-time');
+
+            if (isTimelapseRunning) {
+                // Stop the loop
+                clearInterval(timelapseInterval);
+                isTimelapseRunning = false;
+                icon.className = "fa-solid fa-play";
+                text.innerText = "Run Time-lapse";
+                btn.className = "px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition font-semibold text-xs shadow-md shadow-emerald-600/10 flex items-center gap-2 shrink-0";
+            } else {
+                // Start sequence
+                isTimelapseRunning = true;
+                icon.className = "fa-solid fa-pause";
+                text.innerText = "Pause";
+                btn.className = "px-4 py-2.5 bg-amber-600 hover:bg-amber-700 text-white rounded-xl transition font-semibold text-xs shadow-md shadow-amber-600/10 flex items-center gap-2 shrink-0";
+                
+                // If timeline is already near the end, reset back to 0 before starting
+                if (parseFloat(slider.value) >= 35.5) {
+                    slider.value = 0;
+                    updateTimeSlider(0);
+                }
+
+                timelapseInterval = setInterval(() => {
+                    let nextTime = parseFloat(slider.value) + 0.5;
+                    if (nextTime > 36) {
+                        nextTime = 36;
+                        toggleTimelapse(); // auto stop at boundary limit
+                    }
+                    slider.value = nextTime;
+                    updateTimeSlider(nextTime);
+                }, 120);
+            }
+        }
+
+        function resetParameters() {
+            document.getElementById('slide-k').value = 12.0;
+            document.getElementById('slide-r').value = 0.25;
+            document.getElementById('slide-n0').value = 0.50;
+            document.getElementById('slide-time').value = 12.0;
+
+            if (isTimelapseRunning) {
+                toggleTimelapse();
+            }
+
+            updateSimulation();
+        }
+    </script>
+</body>
+</html>
